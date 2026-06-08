@@ -1,0 +1,55 @@
+# ---- Secrets & local config ----
+.env
+.env.*
+!.env.example
+
+# ---- AI build brief (kept locally for resumability; contains a real token — never publish) ----
+instructions.md
+claude_start.md
+
+# ---- Job Monitor runtime data (generated) ----
+database/*.db
+database/*.db-journal
+database/*.db-wal
+database/*.db-shm
+data/state.json
+backup/
+logs/
+*.log
+exports/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.installed.cfg
+*.egg
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- Test / coverage / type caches ----
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# ---- Editors / OS ----
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---- Streamlit ----
+.streamlit/secrets.toml
