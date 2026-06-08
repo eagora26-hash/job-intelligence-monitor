@@ -1,0 +1,29 @@
+[
+  {"legal": "RemoteOK API legal notice — first element is metadata, not a job."},
+  {
+    "id": "1001",
+    "slug": "python-automation-engineer",
+    "company": "Acme Remote",
+    "position": "Python Automation Engineer",
+    "tags": ["python", "automation", "selenium"],
+    "description": "<p>Build <b>web scraping</b> and automation pipelines.</p>",
+    "location": "Worldwide",
+    "url": "https://remoteok.com/remote-jobs/1001",
+    "date": "2026-06-01T09:30:00+00:00",
+    "salary_min": 90000,
+    "salary_max": 130000
+  },
+  {
+    "id": "1002",
+    "slug": "data-engineer",
+    "company": "DataCo",
+    "position": "Senior Data Engineer",
+    "tags": ["etl", "python", "airflow"],
+    "description": "ETL &amp; data engineering role.",
+    "location": "",
+    "url": "https://remoteok.com/remote-jobs/1002",
+    "date": "2026-06-02T12:00:00+00:00",
+    "salary_min": 0,
+    "salary_max": 0
+  }
+]

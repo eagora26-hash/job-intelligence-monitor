@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>We Work Remotely: Remote Programming Jobs</title>
+    <link>https://weworkremotely.com/categories/remote-programming-jobs</link>
+    <item>
+      <title>Globex: Senior Python Engineer</title>
+      <link>https://weworkremotely.com/remote-jobs/globex-senior-python-engineer</link>
+      <description>&lt;p&gt;Work on &lt;strong&gt;automation&lt;/strong&gt; and APIs.&lt;/p&gt;</description>
+      <pubDate>Mon, 02 Jun 2026 10:00:00 +0000</pubDate>
+      <region>Anywhere</region>
+      <category>Full-Stack Programming</category>
+    </item>
+    <item>
+      <title>Web Scraping Specialist</title>
+      <link>https://weworkremotely.com/remote-jobs/web-scraping-specialist</link>
+      <description>Scrapy and Playwright experience required.</description>
+      <pubDate>Tue, 03 Jun 2026 08:30:00 +0000</pubDate>
+      <region>Europe Only</region>
+      <category>Back-End Programming</category>
+    </item>
+  </channel>
+</rss>

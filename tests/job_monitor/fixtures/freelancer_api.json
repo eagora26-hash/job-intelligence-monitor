@@ -1,0 +1,25 @@
+{
+  "status": "success",
+  "result": {
+    "projects": [
+      {
+        "title": "Build a web scraping bot in Python",
+        "seo_url": "build-web-scraping-bot-python",
+        "preview_description": "Need a Python scraper using Playwright to extract product data.",
+        "time_submitted": 1780000000,
+        "currency": {"code": "USD"},
+        "budget": {"minimum": 250, "maximum": 750},
+        "jobs": [{"name": "Python"}, {"name": "Web Scraping"}]
+      },
+      {
+        "title": "Shopify automation integration",
+        "seo_url": "shopify-automation-integration",
+        "preview_description": "Automate order processing for a Shopify store via API.",
+        "time_submitted": 1780100000,
+        "currency": {"code": "USD"},
+        "budget": {"minimum": 0, "maximum": 500},
+        "jobs": [{"name": "Shopify"}, {"name": "API Integration"}]
+      }
+    ]
+  }
+}
