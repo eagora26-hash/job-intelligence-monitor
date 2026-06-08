@@ -86,21 +86,23 @@
   `/analytics/*`, `/sources/health`); TestClient-tested · **LOW**
   · *verified:* **56 tests green** (incl. live API + graph + MCP + AI).
 
-## Phase G — Production polish
-- [ ] **G.1** Test suite green + coverage config; `pytest.ini`/`conftest`
-  · *files:* `tests/job_monitor/*`, `conftest.py` · *deps:* all tests · **HIGH**
-- [ ] **G.2** Dockerfile.app + docker-compose (scheduler + dashboard, SQLite volume, env)
-  · *files:* `Dockerfile.app`, `docker-compose.yml`, `.dockerignore` · *deps:* D.5,E.3 · **HIGH**
-- [ ] **G.3** GitHub Actions: lint + test on push/PR
-  · *files:* `.github/workflows/{lint,test}.yml` · *deps:* G.1 · **HIGH**
-- [ ] **G.4** README (SaaS-grade), Mermaid architecture + DB diagrams, screenshots placeholders
-  · *files:* `README.md` (or `README_JOB_MONITOR.md`), `screenshots/README.md`, `docs/` · *deps:* most · **HIGH**
-- [ ] **G.5** CHANGELOG + ROADMAP + demo-video script
-  · *files:* `CHANGELOG.md`, `docs/DEMO_VIDEO.md` · *deps:* — · **MEDIUM**
-- [ ] **G.6** git init, `.gitignore`, secret-safe `.env`, incremental commits, final HANDOVER
-  · *files:* `.gitignore`, repo · *deps:* all · **HIGH**
+## Phase G — Production polish  ✅
+- [x] **G.1** Test suite green + coverage (`--cov`) — **63 tests, 71% coverage**, `pytest_job_monitor.ini` · **HIGH**
+- [x] **G.2** `Dockerfile.app` + `docker-compose.yml` (scheduler + dashboard, SQLite volume, env) + `.dockerignore` · **HIGH**
+- [x] **G.3** GitHub Actions: `lint.yml` (ruff) + `test.yml` (pytest 3.11/3.12 matrix) on push/PR · **HIGH**
+- [x] **G.4** SaaS-grade `README.md` (Mermaid architecture + ER diagrams), `docs/ARCHITECTURE.md`, `screenshots/README.md` · **HIGH**
+- [x] **G.5** `CHANGELOG.md` + `ROADMAP.md` + `docs/DEMO_VIDEO.md` · **MEDIUM**
+- [x] **G.6** git init (branch `main`), secret-safe `.gitignore`, **8 layered commits**, token verified absent from VCS · **HIGH**
 
 ---
 
-### Discovered tasks (added as work progresses)
-- _(none yet — append here with date as new work is uncovered)_
+### Discovered tasks (added as work progressed)
+- **2026-06-09** Scrapling's `Fetcher` import pulls in Playwright → switched HTTP layer to curl_cffi
+  + Scrapling `Selector` (browser-free). *Done.*
+- **2026-06-09** Streamlit `use_container_width` deprecated → migrated to `width="stretch"`. *Done.*
+- **2026-06-09** `instructions.md`/`claude_start.md` contain a real token → gitignored (kept locally
+  for resumability, excluded from VCS). *Done.*
+
+---
+
+## Status: ✅ ALL PHASES (0–G) COMPLETE — 63 tests green, lint clean, live-verified, Dockerized, CI-ready.
