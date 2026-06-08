@@ -1,0 +1,4 @@
+# Optional REST API layer (FastAPI). Install on top of requirements.txt.
+-r requirements.txt
+fastapi>=0.110
+uvicorn>=0.29

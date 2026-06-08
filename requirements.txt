@@ -1,0 +1,26 @@
+# Core runtime for the Job Intelligence Monitor (excludes dashboard & dev tooling).
+# The Scrapling scraping engine is vendored in this repo (./scrapling) and reused directly;
+# these are its core parsing/fetching dependencies plus the monitor's own runtime needs.
+
+# --- Scrapling core (parsing + HTTP fetching) ---
+lxml>=6.1.0
+cssselect>=1.4.0
+orjson>=3.11.8
+tld>=0.13.2
+w3lib>=2.4.1
+typing_extensions
+curl_cffi>=0.15.0
+
+# --- Configuration & models ---
+pydantic>=2.0
+pydantic-settings>=2.0
+python-dotenv>=1.0
+
+# --- Orchestration & I/O ---
+apscheduler>=3.10
+httpx>=0.27
+tenacity>=8.2
+
+# --- Data & export ---
+pandas>=2.0
+openpyxl>=3.1

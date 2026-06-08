@@ -1,0 +1,4 @@
+# Dashboard layer (Streamlit + Plotly). Install on top of requirements.txt.
+-r requirements.txt
+streamlit>=1.30
+plotly>=5.18
