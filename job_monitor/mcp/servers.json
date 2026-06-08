@@ -1,0 +1,12 @@
+{
+  "_comment": "MCP server definitions consumed by job_monitor.mcp.load_mcp_config(). Uses the standard mcpServers shape. Edit freely; the app reads but never auto-spawns these.",
+  "mcpServers": {
+    "scrapling": {
+      "command": "scrapling",
+      "args": ["mcp"],
+      "transport": "stdio",
+      "enabled": false,
+      "description": "Scrapling's bundled MCP server (web fetch + adaptive parsing). Requires scrapling[ai]."
+    }
+  }
+}
