@@ -1,0 +1,45 @@
+# Multi-Source AI Job Intelligence Monitor — one-command stack.
+#
+#   1. cp .env.example .env   (fill in TELEGRAM_* or leave blank to disable alerts)
+#   2. docker compose up --build
+#
+# Brings up two services sharing one image and a persistent SQLite volume:
+#   • scheduler — runs the scrape→store→notify pipeline on POLLING_INTERVAL
+#   • dashboard — Streamlit UI on http://localhost:8501
+
+services:
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    image: job-monitor:latest
+    container_name: job-monitor-scheduler
+    env_file: .env
+    command: ["python", "main.py", "--loop"]
+    volumes:
+      - ./database:/app/database
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./backup:/app/backup
+    restart: unless-stopped
+
+  dashboard:
+    image: job-monitor:latest
+    container_name: job-monitor-dashboard
+    depends_on:
+      - scheduler
+    env_file: .env
+    command:
+      - streamlit
+      - run
+      - job_monitor/dashboard/app.py
+      - --server.port=8501
+      - --server.address=0.0.0.0
+      - --server.headless=true
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./database:/app/database
+      - ./data:/app/data
+      - ./exports:/app/exports
+    restart: unless-stopped
