@@ -209,6 +209,13 @@ pip install -r requirements-api.txt
 uvicorn job_monitor.api.app:app --reload          # docs at http://localhost:8000/docs
 ```
 
+### ☁️ Deploy to Streamlit Community Cloud (+ automated scraping & Telegram)
+
+Host the dashboard for free and run scheduled scraping + Telegram alerts via GitHub Actions —
+see **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**. The repo is pre-configured: Cloud-ready
+`requirements.txt`, a dashboard that auto-loads data (with a **🌐 Scrape live now** button), and
+a scheduled scrape workflow that refreshes data and pushes alerts.
+
 ---
 
 ## ⚙️ Configuration

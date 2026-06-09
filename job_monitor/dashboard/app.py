@@ -20,7 +20,11 @@ if str(_ROOT) not in sys.path:
 
 import streamlit as st  # noqa: E402
 
-from job_monitor.dashboard.components import get_context  # noqa: E402
+from job_monitor.dashboard.components import (  # noqa: E402
+    ensure_data,
+    get_context,
+    run_live_scrape,
+)
 from job_monitor.dashboard.views import (  # noqa: E402
     analytics,
     config,
@@ -28,6 +32,12 @@ from job_monitor.dashboard.views import (  # noqa: E402
     health,
     overview,
 )
+
+_DATA_MODE_LABEL = {
+    "existing": "📦 stored data",
+    "live": "🌐 freshly scraped (live)",
+    "demo": "🧪 demo data (live sources unavailable)",
+}
 
 _PAGES = {
     "Overview": overview.render,
@@ -46,19 +56,34 @@ def main() -> None:
         initial_sidebar_state="expanded",
     )
 
+    ctx = get_context()
+
     st.sidebar.title("🛰️ Job Intelligence Monitor")
     st.sidebar.caption("Multi-source AI job monitoring platform")
     choice = st.sidebar.radio("Navigate", list(_PAGES.keys()), label_visibility="collapsed")
     st.sidebar.divider()
-    if st.sidebar.button("🔄 Refresh data", width="stretch"):
+
+    # Bootstrap data on first load (live scrape → demo fallback) so the app is never blank.
+    data_info = ensure_data(ctx.db_path)
+
+    if st.sidebar.button("🌐 Scrape live now", width="stretch", type="primary"):
+        with st.spinner("Scraping live sources…"):
+            try:
+                result = run_live_scrape(ctx.db_path)
+                st.sidebar.success(f"+{result['new']} new jobs (of {result['scraped']} scraped)")
+            except Exception as exc:  # noqa: BLE001
+                st.sidebar.error(f"Scrape failed: {exc}")
         st.cache_data.clear()
         st.rerun()
+    if st.sidebar.button("🔄 Refresh view", width="stretch"):
+        st.cache_data.clear()
+        st.rerun()
+
+    st.sidebar.caption(f"Showing: {_DATA_MODE_LABEL.get(str(data_info.get('mode')), 'data')}")
     st.sidebar.caption(
-        "Data via the SQLite store. Seed with `python generate_demo_data.py` "
-        "or scrape with `python main.py --once`."
+        "Telegram alerts are sent by the scheduled scrape (CLI / GitHub Action), not the dashboard."
     )
 
-    ctx = get_context()
     st.title("Job Intelligence Monitor")
     _PAGES[choice](ctx)
 

@@ -17,8 +17,12 @@ from job_monitor.analytics import AnalyticsService, JobExporter
 from job_monitor.config import Settings, get_settings
 from job_monitor.database import Database, HealthRepository, JobRepository
 from job_monitor.models import JobRecord
+from job_monitor.notifications.base import NullNotifier
 
 _CACHE_TTL = 30  # seconds
+# Sources that work over plain HTTP (no browser). Used for the dashboard's live-scrape so it
+# stays fast and reliable on Streamlit Cloud; Fiverr/Wellfound need the browser/stealth path.
+_RELIABLE_SOURCES = ("remoteok", "weworkremotely", "freelancer")
 _PLOTLY_TEMPLATE = "plotly_white"
 _COLORWAY = px.colors.qualitative.Vivid
 
@@ -80,6 +84,55 @@ def load_jobs(db_path: str) -> List[JobRecord]:
 
 def load_health(db_path: str):
     return HealthRepository(Database(db_path)).all()
+
+
+# --------------------------------------------------------------------------- live scraping
+def run_live_scrape(db_path: str) -> dict:
+    """Run a bounded live scrape (reliable HTTP sources only) into ``db_path``.
+
+    Telegram is intentionally suppressed here (``NullNotifier``) — the dashboard refreshes data;
+    notifications are the scheduled job's responsibility. Returns a small summary dict.
+    """
+    from job_monitor.pipeline.runner import PipelineRunner
+    from job_monitor.scrapers.http import HttpClient
+    from job_monitor.scrapers.registry import SCRAPER_CLASSES
+
+    settings = get_settings()
+    fast = HttpClient(timeout=10, retries=1)
+    scrapers = [SCRAPER_CLASSES[n](http=fast) for n in _RELIABLE_SOURCES if n in SCRAPER_CLASSES]
+    runner = PipelineRunner(
+        settings=settings, database=Database(db_path), scrapers=scrapers, notifier=NullNotifier()
+    )
+    report = runner.run_once()
+    return {"new": report.total_new, "scraped": report.total_scraped}
+
+
+@st.cache_data(show_spinner="Loading job data…")
+def ensure_data(db_path: str) -> dict:
+    """Guarantee the dashboard has data on first load.
+
+    If the database is empty (e.g. a fresh Streamlit Cloud deploy) this performs a one-off live
+    scrape; if that yields nothing (sources blocked / offline) it falls back to demo data so the
+    dashboard is never blank. Cached, so it runs once per process. Returns the data ``mode``.
+    """
+    repo = JobRepository(Database(db_path))
+    if repo.count() > 0:
+        return {"mode": "existing", "count": repo.count()}
+
+    try:
+        run_live_scrape(db_path)
+    except Exception:  # noqa: BLE001 - never let data-bootstrap crash the dashboard
+        pass
+    if repo.count() > 0:
+        return {"mode": "live", "count": repo.count()}
+
+    try:  # last-resort fallback so the dashboard always shows something
+        from job_monitor.services.demo import generate_demo_data
+
+        generate_demo_data(count=120, settings=get_settings(), seed=42)
+    except Exception:  # noqa: BLE001
+        pass
+    return {"mode": "demo", "count": JobRepository(Database(db_path)).count()}
 
 
 # --------------------------------------------------------------------------- chart helpers

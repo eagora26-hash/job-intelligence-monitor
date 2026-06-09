@@ -1,0 +1,12 @@
+# Streamlit configuration (applies locally and on Streamlit Community Cloud).
+[server]
+headless = true
+enableCORS = false
+
+[theme]
+base = "light"
+primaryColor = "#4F6BED"
+font = "sans serif"
+
+[browser]
+gatherUsageStats = false

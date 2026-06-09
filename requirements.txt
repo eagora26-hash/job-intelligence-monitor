@@ -24,3 +24,8 @@ tenacity>=8.2
 # --- Data & export ---
 pandas>=2.0
 openpyxl>=3.1
+
+# --- Dashboard (kept in the root requirements so Streamlit Community Cloud, which auto-installs
+#     this file, can run job_monitor/dashboard/app.py out of the box) ---
+streamlit>=1.30
+plotly>=5.18

@@ -1,0 +1,59 @@
+name: Scheduled Scrape
+
+# Scrapes the configured sources on a schedule, sends Telegram alerts for NEW jobs, and
+# commits the refreshed SQLite database back to the repo. Streamlit Community Cloud watches
+# the repo and auto-redeploys the dashboard with the fresh data.
+#
+# Requires repo secrets: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (Settings → Secrets → Actions).
+# (Pushing the DB with the default GITHUB_TOKEN does not re-trigger workflows, so there is no loop.)
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours (UTC)
+  workflow_dispatch: {}      # allow manual "Run workflow"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scheduled-scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Scrape + notify (new jobs → Telegram)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          NOTIFY_ENABLED: "true"
+          # Disable the two browser-only sources for fast, reliable CI runs.
+          ENABLE_FIVERR: "false"
+          ENABLE_WELLFOUND: "false"
+        run: python main.py --once
+
+      - name: Checkpoint database (fold WAL into the main file)
+        run: |
+          python - <<'PY'
+          import sqlite3, pathlib
+          p = pathlib.Path("database/jobs.db")
+          if p.exists():
+              c = sqlite3.connect(str(p)); c.execute("PRAGMA wal_checkpoint(TRUNCATE)"); c.close()
+          PY
+
+      - name: Commit refreshed database
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f database/jobs.db
+          git diff --staged --quiet || git commit -m "data: refresh scraped jobs [skip ci]"
+          git push
