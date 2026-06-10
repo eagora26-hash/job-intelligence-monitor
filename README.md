@@ -56,20 +56,20 @@ fully-tested application.
 
 ## 🖼️ Screenshots
 
-> Generate live screenshots with the dashboard running (`streamlit run
-> job_monitor/dashboard/app.py`). Placeholders are described in [`screenshots/`](screenshots/).
+> Real captures from the running dashboard (headless Chromium, live scraped data).
+> Full capture checklist: [SCREENSHOT_CHECKLIST.md](SCREENSHOT_CHECKLIST.md).
 
 | Dashboard Overview | Analytics |
 |---|---|
-| ![Overview](screenshots/01_overview.png) | ![Analytics](screenshots/02_analytics.png) |
+| ![Overview](screenshots/01_dashboard_overview.png) | ![Analytics](screenshots/02_analytics_page.png) |
 
 | Job Explorer & Export | Source Health |
 |---|---|
-| ![Explorer](screenshots/03_explorer.png) | ![Health](screenshots/04_health.png) |
+| ![Explorer](screenshots/03_job_explorer.png) | ![Health](screenshots/04_source_health.png) |
 
 | Telegram Alert |
 |---|
-| ![Telegram](screenshots/05_telegram.png) |
+| ![Telegram](screenshots/06_telegram_notification.png) |
 
 ---
 

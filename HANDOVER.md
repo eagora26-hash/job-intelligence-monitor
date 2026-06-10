@@ -2,17 +2,22 @@
 
 > **Single source of truth for project state.** Any engineer (human or AI) can resume from:
 > `instructions.md` → `claude_start.md` → `IMPLEMENTATION_PLAN.md` → `TASKS.md` → this file.
-> Last updated: **2026-06-09** (Phases 0–G complete — v1.0).
+> Last updated: **2026-06-10** (Phases 0–H complete — v1.1, full gap-closure audit done).
 
 ---
 
 ## Current Project Status
 
-✅ **COMPLETE (v1.0).** All planned phases (0–G) are done. The product runs end-to-end and is
-verified: **63 tests pass** (`pytest -c pytest_job_monitor.ini`, 71% coverage), **lint is clean**
-(ruff), a **live `--once` scrape** stored real jobs, the **dashboard renders all 5 pages**
-headlessly, the **REST API** is TestClient-verified, and the repo is a **git repo on `main` with
-8 layered commits** (no secrets committed). Docker + CI are in place.
+✅ **COMPLETE & AUDITED (v1.1).** All phases (0–H) done. A full completion audit
+(2026-06-10) validated every subsystem **live** and closed all closeable gaps:
+**64 tests pass** (72% coverage), lint clean, **4/5 sources extract real data**
+(Fiverr was fixed this audit: 0 → ~90 records/run via a new `perseus-initial-props` parser),
+**Telegram delivery proven** (15 real alerts + `sendMessage ok=true`, dedup verified),
+**dashboard validated** (5 pages × 0 errors, real server health 200, 5 real screenshots
+captured), **CSV/Excel/JSON exports verified** on real data, and **Streamlit Cloud deployment
+prepared** ([DEPLOY_STREAMLIT.md](DEPLOY_STREAMLIT.md)). Full evidence:
+[FINAL_VALIDATION_REPORT.md](FINAL_VALIDATION_REPORT.md) (Production **87/100**, Portfolio
+**96/100**) and [REQUIREMENTS_GAP_ANALYSIS.md](REQUIREMENTS_GAP_ANALYSIS.md).
 
 ---
 
@@ -51,20 +56,21 @@ All of Phases 0–G (see [TASKS.md](TASKS.md) for the checked board):
 
 ## Pending Tasks
 
-None for v1.0. Future enhancements are tracked in [ROADMAP.md](ROADMAP.md) and
-[PORTFOLIO_RECOMMENDATIONS.md](PORTFOLIO_RECOMMENDATIONS.md) (LLM digest, Slack/email notifiers,
-more sources, hosted demo, Postgres + migrations, saved searches).
+None implementable from this machine. Remaining items need the **user's accounts/devices**:
+1. **Rotate the Telegram token** via @BotFather (original was exposed in the brief), update `.env` + GitHub secret.
+2. **Push to GitHub** → CI badges + scheduled scrape go live; then deploy per [DEPLOY_STREAMLIT.md](DEPLOY_STREAMLIT.md).
+3. **Capture screenshots 6–10** (Telegram client, export viewers, Docker, Actions) per [SCREENSHOT_CHECKLIST.md](SCREENSHOT_CHECKLIST.md).
+4. Optional: record the 2–3 min demo video ([PORTFOLIO_SHOWCASE.md](PORTFOLIO_SHOWCASE.md) has the script).
+
+Future enhancements remain tracked in [ROADMAP.md](ROADMAP.md) and
+[PORTFOLIO_RECOMMENDATIONS.md](PORTFOLIO_RECOMMENDATIONS.md).
 
 ---
 
 ## Next Recommended Action
 
-The project is shippable. Highest-value next steps if continuing:
-1. **Capture the 6 screenshots** (see `screenshots/README.md`) so the README renders fully — seed
-   with `python generate_demo_data.py`, run the dashboard, screenshot.
-2. **Rotate the Telegram token** (see Known Issues #1) and set the real one in `.env`.
-3. Push to a GitHub remote so the CI badges go live (workflows already added).
-4. Pick the first ROADMAP item (LLM daily digest via the `ai/` seam) if extending.
+Rotate the Telegram token, push to GitHub, deploy the dashboard on Streamlit Community Cloud
+(exact steps + troubleshooting in [DEPLOY_STREAMLIT.md](DEPLOY_STREAMLIT.md)).
 
 ---
 
@@ -101,14 +107,31 @@ pytest-cov, ruff. Pinned in `requirements.txt`, `requirements-dashboard.txt`,
    absent from all git-tracked content**. `.env.example` holds empty placeholders.
 2. **Live runs send real Telegram messages** when `.env` has a valid token + `NOTIFY_ENABLED=true`.
    Use `NOTIFY_ENABLED=false` for safe local testing.
-3. **Fiverr/Wellfound** usually return 0 jobs without a browser (anti-bot) — expected; demo mode
-   covers the dashboard; RemoteOK/WWR/Freelancer are the reliable live sources.
-4. **Screenshots** in `screenshots/` are placeholders — capture real ones before showcasing.
+3. **Wellfound returns 0 jobs** — Cloudflare blocks this network's IP even via a stealth
+   Chromium (verified 2026-06-10); parser is fixture-validated; source disabled in scheduled
+   runs. **Fiverr was fixed** (perseus-initial-props parser) and now yields ~90 records/run —
+   note these are public seller gigs (no public buyer-request feed exists) and promoted-gig
+   rotation surfaces a few "new" items per run.
+4. **Screenshots:** 01–05 are real captures (2026-06-10); 06–10 need user devices/accounts
+   (see [SCREENSHOT_CHECKLIST.md](SCREENSHOT_CHECKLIST.md)).
 5. Host is Python 3.14 / PEP 668 → work inside `.venv`. CI targets 3.11/3.12 (broad wheel support).
 
 ---
 
 ## Session Notes
+
+**Session 2 (2026-06-10):** Full completion & gap-closure audit per the final directive.
+Validated every subsystem live and produced the evidence trail (8 reports: requirements gap
+analysis, scraper/Telegram/dashboard/export validation, Streamlit deploy guide, portfolio
+showcase, screenshot checklist; re-issued FINAL_VALIDATION_REPORT v1.1). Fixes shipped:
+**Fiverr scraper rewritten** for the `perseus-initial-props` data island (0 → ~90
+records/run; new fixture + tests), **JSON export** added to exporter + dashboard,
+`Settings` `populate_by_name` bug fixed, lint nit fixed, `.streamlit/config.toml` CORS/XSRF
+conflict removed, README screenshot links updated. Captured **5 real dashboard screenshots**
+via headless Chromium. Wellfound fix attempted with a full stealth browser stack
+(playwright/patchright/Chromium; `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64` needed
+on Ubuntu 26.04) — still 403 ⇒ IP-level Cloudflare block, documented honestly. Suite: 64
+tests green, 72% coverage, ruff clean. DB now holds 229 real jobs.
 
 **Session 1 (2026-06-08 → 06-09):** Built the entire product from the brief: read both specs,
 analyzed the Scrapling engine, authored the four governance docs, then implemented Phases A–G with

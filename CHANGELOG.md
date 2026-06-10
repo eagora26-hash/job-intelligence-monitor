@@ -4,6 +4,38 @@ All notable changes to the Job Intelligence Monitor application are documented h
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and the project
 aims to follow [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] — 2026-06-10
+
+Completion & gap-closure audit release: every subsystem validated live, all closeable gaps
+closed. Evidence: `FINAL_VALIDATION_REPORT.md` + per-subsystem validation reports.
+
+### Fixed
+- **Fiverr scraper**: rewritten to parse the `perseus-initial-props` JSON data island that
+  public subcategory/search pages embed (~48 gigs/page); ld+json kept as legacy fallback;
+  listing URLs switched to gig-bearing pages. **0 → ~90 records/run**, fixture-tested.
+- **`Settings`**: `populate_by_name=True` — constructor kwargs by field name were silently
+  ignored in favor of `.env` values.
+- `.streamlit/config.toml`: removed `enableCORS=false` (conflicted with XSRF protection).
+- Lint: unused variable in `test_extensions.py`.
+
+### Added
+- **JSON export in the dashboard**: `JobExporter.to_json_bytes()` + an `⬇️ Export JSON`
+  download button in Job Explorer (CSV/Excel/JSON now all first-class).
+- **5 real dashboard screenshots** (headless Chromium, live data) replacing placeholders;
+  README image links updated.
+- Audit documentation: `REQUIREMENTS_GAP_ANALYSIS.md`, `SCRAPER_VALIDATION_REPORT.md`,
+  `TELEGRAM_VALIDATION_REPORT.md`, `DASHBOARD_VALIDATION_REPORT.md`,
+  `EXPORT_VALIDATION_REPORT.md`, `DEPLOY_STREAMLIT.md`, `PORTFOLIO_SHOWCASE.md`,
+  `SCREENSHOT_CHECKLIST.md`.
+
+### Validated (live)
+- Telegram: 15 real alerts delivered + `sendMessage ok=true`; at-most-once dedup proven.
+- Scrapers: RemoteOK 100, WWR 61, Freelancer 97, Fiverr ~90 records/run; Wellfound confirmed
+  IP-blocked by Cloudflare even via a stealth Chromium (parser remains fixture-validated).
+- Dashboard: 5 pages × 0 errors against the real DB; server health endpoint 200.
+- Exports: CSV/Excel/JSON files generated and integrity-checked (229 rows each).
+- Suite: **64 tests**, 72% coverage, ruff clean.
+
 ## [1.0.0] — 2026-06-09
 
 First complete release: a portfolio-grade, multi-source job intelligence platform built on the
