@@ -23,8 +23,82 @@ _CACHE_TTL = 30  # seconds
 # Sources that work over plain HTTP (no browser). Used for the dashboard's live-scrape so it
 # stays fast and reliable on Streamlit Cloud; Fiverr/Wellfound need the browser/stealth path.
 _RELIABLE_SOURCES = ("remoteok", "weworkremotely", "freelancer")
-_PLOTLY_TEMPLATE = "plotly_white"
-_COLORWAY = px.colors.qualitative.Vivid
+_PLOTLY_TEMPLATE = "plotly_dark"
+ACCENT = "#6C8CFF"
+_COLORWAY = ["#6C8CFF", "#4FD1C5", "#F6AD55", "#FC8181", "#B794F4", "#68D391", "#F687B3"]
+
+SOURCE_LABELS = {
+    "remoteok": "RemoteOK",
+    "weworkremotely": "We Work Remotely",
+    "freelancer": "Freelancer",
+    "fiverr": "Fiverr",
+    "wellfound": "Wellfound",
+}
+
+_CSS = """
+<style>
+/* ---- layout & typography ------------------------------------------------ */
+.block-container { padding-top: 1.4rem; padding-bottom: 2.5rem; max-width: 1300px; }
+h1, h2, h3 { letter-spacing: -0.02em; }
+#MainMenu, footer { visibility: hidden; }
+
+/* ---- KPI metric cards ---------------------------------------------------- */
+div[data-testid="stMetric"] {
+  background: linear-gradient(160deg, #1A2336 0%, #141B2B 100%);
+  border: 1px solid #27314A;
+  border-radius: 14px;
+  padding: 14px 18px 12px 18px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+}
+div[data-testid="stMetric"] label { color: #9AA6C3 !important; font-size: 0.78rem;
+  text-transform: uppercase; letter-spacing: 0.06em; }
+div[data-testid="stMetricValue"] { font-size: 1.7rem; font-weight: 700; }
+div[data-testid="stMetricDelta"] { font-size: 0.85rem; }
+
+/* ---- section headers ------------------------------------------------------ */
+.jm-section { margin: 1.6rem 0 0.4rem 0; display: flex; align-items: baseline; gap: 0.6rem; }
+.jm-section h3 { margin: 0; font-size: 1.12rem; }
+.jm-section span { color: #8A96B5; font-size: 0.85rem; }
+.jm-rule { border: none; border-top: 1px solid #27314A; margin: 0.35rem 0 1rem 0; }
+
+/* ---- hero banner ----------------------------------------------------------- */
+.jm-hero { padding: 6px 2px 2px 2px; }
+.jm-hero h1 { font-size: 1.65rem; margin: 0; }
+.jm-hero p { color: #8A96B5; margin: 2px 0 0 0; font-size: 0.95rem; }
+.jm-chip { display: inline-block; background: #1D2A45; color: #A9BBFF;
+  border: 1px solid #31416A; border-radius: 999px; padding: 2px 12px;
+  font-size: 0.75rem; margin-right: 6px; }
+
+/* ---- tables ---------------------------------------------------------------- */
+div[data-testid="stDataFrame"] { border: 1px solid #27314A; border-radius: 12px; }
+
+/* ---- sidebar ---------------------------------------------------------------- */
+section[data-testid="stSidebar"] { border-right: 1px solid #222C44; }
+section[data-testid="stSidebar"] .stRadio label p { font-size: 0.95rem; }
+</style>
+"""
+
+
+def inject_css() -> None:
+    """Inject the SaaS design system once per rerun (cheap, idempotent)."""
+    st.markdown(_CSS, unsafe_allow_html=True)
+
+
+def section(title: str, caption: str = "") -> None:
+    """Consistent section header with optional explainer caption."""
+    cap = f"<span>{caption}</span>" if caption else ""
+    st.markdown(f'<div class="jm-section"><h3>{title}</h3>{cap}</div><hr class="jm-rule">',
+                unsafe_allow_html=True)
+
+
+def hero(title: str, subtitle: str, chips: List[str]) -> None:
+    """Page hero: product title, one-line value statement, status chips."""
+    chip_html = "".join(f'<span class="jm-chip">{c}</span>' for c in chips)
+    st.markdown(
+        f'<div class="jm-hero"><h1>{title}</h1><p>{subtitle}</p>'
+        f'<div style="margin-top:8px">{chip_html}</div></div>',
+        unsafe_allow_html=True,
+    )
 
 
 @dataclass
@@ -75,6 +149,39 @@ def load_skill_frequency(db_path: str, top: int = 15) -> List[Tuple[str, int]]:
 @st.cache_data(ttl=_CACHE_TTL, show_spinner=False)
 def load_score_distribution(db_path: str) -> Dict[str, int]:
     return AnalyticsService(Database(db_path)).score_distribution()
+
+
+@st.cache_data(ttl=_CACHE_TTL, show_spinner=False)
+def load_intelligence(db_path: str) -> Dict[str, object]:
+    """One cached bundle for the executive page: 24h volume, leaders, health score."""
+    svc = AnalyticsService(Database(db_path))
+    active, top_count = svc.most_active_source()
+    return {
+        "new_last_24h": svc.new_last_24h(),
+        "most_active_source": SOURCE_LABELS.get(active, active),
+        "most_active_count": top_count,
+        "health_score": svc.health_score(),
+    }
+
+
+@st.cache_data(ttl=_CACHE_TTL, show_spinner=False)
+def load_weekly_trend(db_path: str, weeks: int = 8) -> Dict[str, int]:
+    return AnalyticsService(Database(db_path)).weekly_trend(weeks=weeks)
+
+
+@st.cache_data(ttl=_CACHE_TTL, show_spinner=False)
+def load_skill_matrix(db_path: str, top: int = 12) -> Dict[str, Dict[str, int]]:
+    return AnalyticsService(Database(db_path)).skill_source_matrix(top=top)
+
+
+@st.cache_data(ttl=_CACHE_TTL, show_spinner=False)
+def load_source_stats(db_path: str) -> List[Dict[str, object]]:
+    return AnalyticsService(Database(db_path)).source_stats()
+
+
+@st.cache_data(ttl=_CACHE_TTL, show_spinner=False)
+def load_reliability(db_path: str) -> List[Dict[str, object]]:
+    return AnalyticsService(Database(db_path)).reliability_leaderboard()
 
 
 def load_jobs(db_path: str) -> List[JobRecord]:
@@ -136,12 +243,19 @@ def ensure_data(db_path: str) -> dict:
 
 
 # --------------------------------------------------------------------------- chart helpers
-def _style(fig):
+def _style(fig, height: int = 340):
     fig.update_layout(
         template=_PLOTLY_TEMPLATE,
-        margin=dict(l=10, r=10, t=40, b=10),
+        margin=dict(l=10, r=10, t=42, b=10),
         colorway=_COLORWAY,
-        height=360,
+        height=height,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(22,29,46,0.55)",
+        font=dict(color="#C7D0E4", size=12),
+        title_font=dict(size=14, color="#E8ECF6"),
+        xaxis=dict(gridcolor="#222C44", zerolinecolor="#222C44"),
+        yaxis=dict(gridcolor="#222C44", zerolinecolor="#222C44"),
+        legend=dict(bgcolor="rgba(0,0,0,0)"),
     )
     return fig
 
@@ -173,6 +287,37 @@ def line_from_mapping(mapping: Dict[str, int], *, title: str, x_label: str, y_la
         return None
     df = pd.DataFrame({x_label: list(mapping.keys()), y_label: list(mapping.values())})
     fig = px.area(df, x=x_label, y=y_label, title=title, markers=True)
+    return _style(fig)
+
+
+def heatmap_from_matrix(matrix: Dict[str, Dict[str, int]], *, title: str):
+    """Skill × source demand heatmap."""
+    if not matrix:
+        return None
+    sources = sorted({s for row in matrix.values() for s in row})
+    skills = list(matrix.keys())
+    z = [[matrix[skill].get(src, 0) for src in sources] for skill in skills]
+    fig = px.imshow(
+        z,
+        x=[SOURCE_LABELS.get(s, s) for s in sources],
+        y=skills,
+        title=title,
+        color_continuous_scale=["#161D2E", "#31416A", "#6C8CFF", "#A9BBFF"],
+        text_auto=True,
+        aspect="auto",
+    )
+    fig.update_coloraxes(showscale=False)
+    return _style(fig, height=max(340, 30 * len(skills) + 90))
+
+
+def grouped_bar(df: pd.DataFrame, *, x: str, ys: List[str], title: str):
+    """Multi-metric comparison bars (e.g. per-source volume vs score vs quality)."""
+    if df.empty:
+        return None
+    melted = df.melt(id_vars=[x], value_vars=ys, var_name="metric", value_name="value")
+    fig = px.bar(melted, x=x, y="value", color="metric", barmode="group", title=title,
+                 text="value")
+    fig.update_traces(textposition="outside")
     return _style(fig)
 
 

@@ -36,6 +36,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           NOTIFY_ENABLED: "true"
+          NOTIFY_SOURCES: "remoteok,weworkremotely,freelancer"
           # Disable the two browser-only sources for fast, reliable CI runs.
           ENABLE_FIVERR: "false"
           ENABLE_WELLFOUND: "false"

@@ -23,6 +23,7 @@ import streamlit as st  # noqa: E402
 from job_monitor.dashboard.components import (  # noqa: E402
     ensure_data,
     get_context,
+    inject_css,
     run_live_scrape,
 )
 from job_monitor.dashboard.views import (  # noqa: E402
@@ -31,6 +32,8 @@ from job_monitor.dashboard.views import (  # noqa: E402
     explorer,
     health,
     overview,
+    showcase,
+    system,
 )
 
 _DATA_MODE_LABEL = {
@@ -40,11 +43,13 @@ _DATA_MODE_LABEL = {
 }
 
 _PAGES = {
-    "Overview": overview.render,
-    "Analytics": analytics.render,
-    "Job Explorer": explorer.render,
-    "Source Health": health.render,
-    "Configuration": config.render,
+    "📊 Overview": overview.render,
+    "📈 Insights": analytics.render,
+    "🔎 Job Explorer": explorer.render,
+    "🩺 Source Health": health.render,
+    "🖥️ System Status": system.render,
+    "🏆 Portfolio Showcase": showcase.render,
+    "⚙️ Configuration": config.render,
 }
 
 
@@ -55,11 +60,12 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="expanded",
     )
+    inject_css()
 
     ctx = get_context()
 
-    st.sidebar.title("🛰️ Job Intelligence Monitor")
-    st.sidebar.caption("Multi-source AI job monitoring platform")
+    st.sidebar.markdown("## 🛰️ Job Intelligence")
+    st.sidebar.caption("Multi-source job monitoring & analytics")
     choice = st.sidebar.radio("Navigate", list(_PAGES.keys()), label_visibility="collapsed")
     st.sidebar.divider()
 
@@ -81,10 +87,10 @@ def main() -> None:
 
     st.sidebar.caption(f"Showing: {_DATA_MODE_LABEL.get(str(data_info.get('mode')), 'data')}")
     st.sidebar.caption(
-        "Telegram alerts are sent by the scheduled scrape (CLI / GitHub Action), not the dashboard."
+        "Telegram alerts are sent by the scheduled scrape (CLI / GitHub Action), "
+        "not the dashboard."
     )
 
-    st.title("Job Intelligence Monitor")
     _PAGES[choice](ctx)
 
 

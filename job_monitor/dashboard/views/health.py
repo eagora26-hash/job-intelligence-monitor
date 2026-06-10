@@ -14,7 +14,8 @@ _STATUS_EMOJI = {"healthy": "🟢", "degraded": "🟡", "failing": "🔴", "unkn
 
 
 def render(ctx: DashboardContext) -> None:
-    st.subheader("🩺 Source Health & Observability")
+    st.markdown("## 🩺 Source Health")
+    st.caption("Per-source reliability and the platform's operational metrics.")
 
     health = load_health(ctx.db_path)
     if not health:

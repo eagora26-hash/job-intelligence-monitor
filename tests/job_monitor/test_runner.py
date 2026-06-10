@@ -39,8 +39,10 @@ class _CapturingNotifier(Notifier):
     def __init__(self) -> None:
         self.new_jobs: List[JobRecord] = []
         self.errors: List[str] = []
+        self.sent: List[str] = []
 
     def send(self, text: str) -> bool:
+        self.sent.append(text)
         return True
 
     def notify_new_jobs(self, jobs: List[JobRecord]) -> int:
@@ -85,33 +87,57 @@ def _make_runner(settings, scrapers, notifier) -> PipelineRunner:
     )
 
 
-def test_run_once_stores_and_notifies(test_settings):
+def test_first_run_establishes_baseline_without_alerts(test_settings):
     notifier = _CapturingNotifier()
     scraper = _FakeScraper([_raw("Python Dev", "https://x/1"), _raw("Automation Eng", "https://x/2")])
     runner = _make_runner(test_settings, [scraper], notifier)
 
     report = runner.run_once()
 
+    assert report.baseline is True
     assert report.total_new == 2
-    assert report.notified == 2
-    assert len(notifier.new_jobs) == 2
-    # Persisted + enriched.
+    assert report.notified == 0  # baseline never sends per-job alerts
+    assert notifier.new_jobs == []
+    assert any("Baseline established" in t for t in notifier.sent)
+    # Persisted + enriched, and every baseline job is marked notified.
     jobs = JobRepository(runner.database)
     assert jobs.count() == 2
     assert all(j.score > 0 for j in jobs.all_jobs())
+    assert all(j.notified for j in jobs.all_jobs())
 
 
-def test_second_run_is_idempotent(test_settings):
+def test_monitoring_run_notifies_only_new_jobs(test_settings):
     notifier = _CapturingNotifier()
     raw = [_raw("Python Dev", "https://x/1")]
-    runner = _make_runner(test_settings, [_FakeScraper(raw)], notifier)
+    scraper = _FakeScraper(raw)
+    runner = _make_runner(test_settings, [scraper], notifier)
 
-    first = runner.run_once()
-    second = runner.run_once()
+    first = runner.run_once()       # baseline
+    second = runner.run_once()      # same data -> nothing new, no alerts
+    raw.append(_raw("Scraping Eng", "https://x/2"))
+    third = runner.run_once()       # one genuinely new job -> exactly one alert
 
-    assert first.total_new == 1
-    assert second.total_new == 0  # deduped
-    assert JobRepository(runner.database).count() == 1
+    assert first.baseline and not second.baseline and not third.baseline
+    assert second.total_new == 0 and second.notified == 0
+    assert third.total_new == 1 and third.notified == 1
+    assert [j.url for j in notifier.new_jobs] == ["https://x/2"]
+    assert JobRepository(runner.database).count() == 2
+
+
+def test_notify_sources_filter(test_settings):
+    settings = test_settings.model_copy(update={"notify_sources": ["weworkremotely"]})
+    notifier = _CapturingNotifier()
+    raw = [_raw("Python Dev", "https://x/1")]
+    scraper = _FakeScraper(raw)  # source = remoteok, not in notify_sources
+    runner = _make_runner(settings, [scraper], notifier)
+
+    runner.run_once()  # baseline
+    raw.append(_raw("Scraping Eng", "https://x/2"))
+    report = runner.run_once()
+
+    assert report.total_new == 1        # stored
+    assert report.notified == 0         # but silenced by the source filter
+    assert notifier.new_jobs == []
 
 
 def test_failure_isolated_and_alerted(test_settings):

@@ -3,8 +3,11 @@
 headless = true
 
 [theme]
-base = "light"
-primaryColor = "#4F6BED"
+base = "dark"
+primaryColor = "#6C8CFF"
+backgroundColor = "#0D1220"
+secondaryBackgroundColor = "#161D2E"
+textColor = "#E8ECF6"
 font = "sans serif"
 
 [browser]

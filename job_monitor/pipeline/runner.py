@@ -59,6 +59,7 @@ class RunReport:
     sources: List[SourceRunInfo] = field(default_factory=list)
     new_jobs: List[JobRecord] = field(default_factory=list)
     notified: int = 0
+    baseline: bool = False
 
     @property
     def duration_ms(self) -> float:
@@ -78,8 +79,10 @@ class RunReport:
 
     def summary_line(self) -> str:
         ok = sum(1 for s in self.sources if s.success)
+        mode = "BASELINE | " if self.baseline else ""
         return (
-            f"Run finished in {self.duration_ms:.0f} ms | sources ok {ok}/{len(self.sources)} | "
+            f"Run finished in {self.duration_ms:.0f} ms | {mode}"
+            f"sources ok {ok}/{len(self.sources)} | "
             f"scraped {self.total_scraped} | new {self.total_new} | updated {self.total_updated} | "
             f"notified {self.notified}"
         )
@@ -127,7 +130,15 @@ class PipelineRunner:
     # ----------------------------------------------------------------- run
     def run_once(self) -> RunReport:
         started = datetime.now(timezone.utc)
-        logger.info("Starting run with %d source(s)", len(self.scrapers))
+        # An empty jobs table means this is the FIRST run: it establishes the baseline.
+        # Baseline runs ingest everything but send no per-job alerts (only a summary),
+        # so a fresh deployment never floods the Telegram chat.
+        baseline = self.jobs.count() == 0
+        logger.info(
+            "Starting %s run with %d source(s)",
+            "BASELINE" if baseline else "monitoring",
+            len(self.scrapers),
+        )
 
         results = self._scrape_concurrently()
 
@@ -138,7 +149,11 @@ class PipelineRunner:
             sources_info.append(info)
             new_jobs.extend(fresh)
 
-        notified = self._notify(new_jobs)
+        if baseline:
+            notified = 0
+            self._finish_baseline(new_jobs)
+        else:
+            notified = self._notify(new_jobs)
         self._checkpoint_state(sources_info)
         self._write_snapshot(new_today=len(new_jobs))
 
@@ -148,6 +163,7 @@ class PipelineRunner:
             sources=sources_info,
             new_jobs=new_jobs,
             notified=notified,
+            baseline=baseline,
         )
         logger.info(report.summary_line())
         return report
@@ -195,8 +211,25 @@ class PipelineRunner:
         self.health.save(health)
         return info, fresh
 
+    def _finish_baseline(self, new_jobs: List[JobRecord]) -> None:
+        """Close out a baseline run: mark everything notified, send one summary message."""
+        self.jobs.mark_notified(j.url for j in new_jobs)
+        per_source = {}
+        for j in new_jobs:
+            per_source[j.source] = per_source.get(j.source, 0) + 1
+        breakdown = " · ".join(f"{s}: {n}" for s, n in sorted(per_source.items())) or "no jobs"
+        self.notifier.send(
+            f"📊 <b>Baseline established</b> — {len(new_jobs)} jobs ingested ({breakdown}).\n"
+            "From now on you will only be alerted about <b>new</b> jobs."
+        )
+
     def _notify(self, new_jobs: List[JobRecord]) -> int:
-        worthy = [j for j in new_jobs if j.score >= self.settings.notify_min_score]
+        allowed = self.settings.notify_sources
+        worthy = [
+            j for j in new_jobs
+            if j.score >= self.settings.notify_min_score
+            and (not allowed or j.source in allowed)
+        ]
         if not worthy:
             return 0
         sent = self.notifier.notify_new_jobs(worthy)

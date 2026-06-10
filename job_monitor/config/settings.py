@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     telegram_chat_id: str = Field(default="", alias="TELEGRAM_CHAT_ID")
     notify_enabled: bool = Field(default=True, alias="NOTIFY_ENABLED")
     notify_min_score: int = Field(default=10, alias="NOTIFY_MIN_SCORE")
+    # Restrict per-job alerts to these sources (CSV env var). Empty = alert for all sources.
+    # Useful to silence high-churn marketplaces (e.g. Fiverr promoted-gig rotation).
+    notify_sources: Annotated[List[str], NoDecode] = Field(
+        default_factory=list, alias="NOTIFY_SOURCES"
+    )
 
     # --- Scheduling ---
     polling_interval: int = Field(default=3600, alias="POLLING_INTERVAL")
@@ -78,7 +83,7 @@ class Settings(BaseSettings):
     )
 
     # ----------------------------------------------------------------- validators
-    @field_validator("include_keywords", "exclude_keywords", mode="before")
+    @field_validator("include_keywords", "exclude_keywords", "notify_sources", mode="before")
     @classmethod
     def _split_csv(cls, value: object) -> object:
         """Allow comma-separated strings for list-valued env vars."""

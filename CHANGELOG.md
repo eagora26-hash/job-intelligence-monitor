@@ -4,6 +4,22 @@ All notable changes to the Job Intelligence Monitor application are documented h
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and the project
 aims to follow [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] — 2026-06-10
+
+### Added
+- **SaaS dashboard redesign** (dark theme + design-system CSS): executive Overview with
+  6 KPI cards (incl. Source Health Score) and a smart-intelligence band; **Insights** page
+  with weekly trend, skill×source heatmap, source comparison, and job-score / source-
+  reliability leaderboards; new **Portfolio Showcase** page (architecture + data flow +
+  client value) and **System Status** page (latest alerts, scrapes, exports, DB statistics).
+- **Baseline notification semantics**: the first run on an empty database ingests everything
+  silently (one summary message, all jobs pre-marked notified); later runs alert **only**
+  genuinely new jobs. `NOTIFY_SOURCES` allow-list silences high-churn marketplaces (Fiverr).
+  Documented in `TELEGRAM_NOTIFICATION_ARCHITECTURE.md`; validated live over 3 cycles.
+- Analytics service: `new_last_24h`, `weekly_trend`, `skill_source_matrix`, `source_stats`,
+  `health_score`, `reliability_leaderboard`, `most_active_source`.
+- Zero-experience `DEPLOY_STREAMLIT.md` (exact values, steps, validation, troubleshooting).
+
 ## [1.1.0] — 2026-06-10
 
 Completion & gap-closure audit release: every subsystem validated live, all closeable gaps

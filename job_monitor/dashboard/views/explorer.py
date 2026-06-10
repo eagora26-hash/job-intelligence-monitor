@@ -5,12 +5,19 @@ from __future__ import annotations
 import streamlit as st
 
 from job_monitor.analytics import JobExporter
-from job_monitor.dashboard.components import DashboardContext, empty_state, load_jobs
+from job_monitor.dashboard.components import (
+    DashboardContext,
+    SOURCE_LABELS,
+    empty_state,
+    load_jobs,
+    section,
+)
 from job_monitor.pipeline import FilterConfig, JobFilter
 
 
 def render(ctx: DashboardContext) -> None:
-    st.subheader("🔎 Job Explorer")
+    st.markdown("## 🔎 Job Explorer")
+    st.caption("Search and slice every stored opportunity, then export the result.")
     jobs = load_jobs(ctx.db_path)
     if not jobs:
         empty_state()
@@ -20,16 +27,23 @@ def render(ctx: DashboardContext) -> None:
     categories = sorted({j.category for j in jobs if j.category})
     max_score = max((j.score for j in jobs), default=0)
 
-    with st.form("filters"):
-        c1, c2, c3 = st.columns(3)
-        query = c1.text_input("Search (title, company, skills)")
-        chosen_sources = c2.multiselect("Sources", sources, default=sources)
-        chosen_categories = c3.multiselect("Categories", categories)
-        c4, c5, c6 = st.columns(3)
-        min_score = c4.slider("Min relevance score", 0, int(max_score) or 1, 0)
-        remote_only = c5.checkbox("Remote only")
-        sort_by = c6.selectbox("Sort by", ["score", "recent", "quality"])
-        st.form_submit_button("Apply filters", width="stretch")
+    with st.form("filters", border=True):
+        c1, c2 = st.columns([3, 1])
+        query = c1.text_input(
+            "Search", placeholder="e.g. python scraping, telegram bot, shopify…",
+            help="Matches title, company and extracted skills.",
+        )
+        sort_by = c2.selectbox("Sort by", ["score", "recent", "quality"],
+                               format_func=str.capitalize)
+        c3, c4, c5, c6 = st.columns([2, 2, 2, 1])
+        chosen_sources = c3.multiselect(
+            "Sources", sources, default=sources,
+            format_func=lambda s: SOURCE_LABELS.get(s, s),
+        )
+        chosen_categories = c4.multiselect("Categories", categories)
+        min_score = c5.slider("Min relevance", 0, int(max_score) or 1, 0)
+        remote_only = c6.checkbox("Remote only")
+        st.form_submit_button("Apply filters", type="primary", width="stretch")
 
     # Apply structured filters via the same JobFilter used by the pipeline.
     flt = JobFilter(
@@ -49,7 +63,7 @@ def render(ctx: DashboardContext) -> None:
     reverse = sort_by == "recent"
     results = sorted(results, key=sort_key[sort_by], reverse=reverse)
 
-    st.caption(f"**{len(results)}** of {len(jobs)} jobs match.")
+    section("Results", f"{len(results)} of {len(jobs)} jobs match")
 
     exporter = JobExporter(results)
     df = exporter.to_dataframe()
@@ -57,7 +71,12 @@ def render(ctx: DashboardContext) -> None:
         df,
         hide_index=True,
         width="stretch",
-        column_config={"url": st.column_config.LinkColumn("Link", display_text="open")},
+        column_config={
+            "score": st.column_config.ProgressColumn(
+                "Relevance", min_value=0, max_value=max(int(max_score), 1), format="%d",
+            ),
+            "url": st.column_config.LinkColumn("Link", display_text="open"),
+        },
     )
 
     d1, d2, d3, _ = st.columns([1, 1, 1, 3])

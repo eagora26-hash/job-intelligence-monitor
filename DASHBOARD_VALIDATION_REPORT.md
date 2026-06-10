@@ -55,3 +55,19 @@
 
 All five pages load, all charts render, search/filters/sort work, and all three exports
 download — against real scraped data, verified both headlessly and through a real browser.
+
+
+---
+
+## Addendum — SaaS redesign re-validation (2026-06-10, later session)
+
+The dashboard was redesigned into a dark SaaS analytics product: design-system CSS (KPI
+cards, section headers, hero band), executive Overview (6 KPIs incl. Source Health Score +
+smart-intelligence band), an **Insights** page (daily + weekly trends, skill×source heatmap,
+source comparison, job-score and source-reliability leaderboards), and two new pages:
+**Portfolio Showcase** (architecture diagram, data flow, value) and **System Status**
+(latest alerts / scrapes / exports, database statistics).
+
+Re-validation: **all 7 pages render with 0 exceptions / 0 errors** (AppTest, real DB);
+suite green (65 tests, incl. new baseline/notify-filter tests); screenshots re-captured
+(`01–05`, `11_system_status.png`, `12_portfolio_showcase.png`).

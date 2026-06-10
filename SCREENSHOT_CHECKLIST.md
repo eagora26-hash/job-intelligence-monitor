@@ -14,8 +14,10 @@ Status legend: ✅ captured (real, in `screenshots/`) · ⬜ manual capture stil
 | 8 | Excel Export Example | `exports/jobs_export.xlsx` | open in LibreOffice/Excel showing the `Jobs` sheet | `screenshots/08_excel_export.png` | ⬜ |
 | 9 | Docker Running | terminal | `docker compose up` → screenshot both services up (`scheduler` + `dashboard`) | `screenshots/09_docker_running.png` | ⬜ (Docker daemon not available in the validation environment) |
 | 10 | GitHub Actions Passing | GitHub repo → Actions tab | after first push: green runs for *lint*, *test*, *Scheduled Scrape* | `screenshots/10_github_actions.png` | ⬜ (requires the GitHub remote) |
+| 11 | System Status | Dashboard → **System Status** | select *System Status*: alerts, scrapes, exports, DB stats | `screenshots/11_system_status.png` | ✅ |
+| 12 | Portfolio Showcase | Dashboard → **Portfolio Showcase** | select *Portfolio Showcase*: architecture diagram visible | `screenshots/12_portfolio_showcase.png` | ✅ |
 
 Notes:
-- 1–5 were captured programmatically (headless Chromium, 1600×1000, real 229-job database).
+- 1–5, 11, 12 were captured programmatically (headless Chromium, real scraped database) and re-captured 2026-06-10 after the SaaS redesign (dark theme, 7 pages).
 - 6–10 require accounts/devices not available to the automated environment (Telegram client,
   Docker daemon, GitHub remote) — each takes under a minute once those are at hand.
