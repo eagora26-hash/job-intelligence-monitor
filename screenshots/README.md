@@ -12,10 +12,11 @@ is in [SCREENSHOT_CHECKLIST.md](../SCREENSHOT_CHECKLIST.md).
 | `04_source_health.png` | Source Health — per-source status + system metrics | ✅ captured |
 | `05_settings_page.png` | Configuration — source toggles, keywords, notifications | ✅ captured |
 | `06_telegram_notification.png` | A "🚀 NEW JOB" alert in the Telegram client | ⬜ manual (chat owner's device) |
-| `07_csv_export.png` | `exports/jobs_export.csv` opened in a spreadsheet | ⬜ manual |
-| `08_excel_export.png` | `exports/jobs_export.xlsx` opened (Jobs sheet) | ⬜ manual |
+| `07_csv_export.png` | real `jobs_export.csv` contents as a data grid | ✅ captured |
+| `08_excel_export.png` | real `jobs_export.xlsx` Jobs sheet as a data grid | ✅ captured |
 | `09_docker_running.png` | `docker compose up` with both services healthy | ⬜ manual (needs Docker daemon) |
-| `10_github_actions.png` | Green lint/test/scrape workflow runs | ⬜ manual (after GitHub push) |
+| `10_github_actions.png` | GitHub Actions page — all workflows green | ✅ captured |
+| `14_scheduler_running.png` | `python main.py --loop` — 2 timed cycles + graceful shutdown | ✅ captured |
 | `11_system_status.png` | System Status — alerts, scrapes, exports, DB stats | ✅ captured |
 | `12_portfolio_showcase.png` | Portfolio Showcase — architecture + value page | ✅ captured |
 

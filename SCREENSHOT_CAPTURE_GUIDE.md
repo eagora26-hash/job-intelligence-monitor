@@ -1,6 +1,6 @@
 # Screenshot Capture Guide
 
-12 screenshots for portfolio and client presentation. **1–5, 11–12 are already captured**
+12 screenshots for portfolio and client presentation. **only 6, 9 and 12 (Streamlit Cloud) remain** — the other nine are captured
 (real, headless Chromium, dark theme, live data — in `screenshots/`); re-capture them only
 if the UI changes. 6–10 need your accounts/devices — exact steps below.
 
@@ -16,14 +16,14 @@ Dashboard prep: `streamlit run job_monitor/dashboard/app.py` → http://localhos
 | 4 | Source Health | Dashboard → **🩺 Source Health** | capture status cards + table | `screenshots/04_source_health.png` | ✅ done |
 | 5 | Settings | Dashboard → **⚙️ Configuration** | capture source toggles + keyword editor | `screenshots/05_settings_page.png` | ✅ done |
 | 6 | Telegram Alert | **Your phone/desktop Telegram**, chat with `@ejob_monitor_bot` | scroll to a `🚀 NEW JOB` message (sent during validation) or run `python main.py --once` after adding a new keyword; crop to 1–2 messages | `screenshots/06_telegram_notification.png` | ⬜ your device |
-| 7 | Excel Export | LibreOffice Calc / Excel | Job Explorer → **⬇️ Export Excel** → open the downloaded `jobs_export.xlsx` → capture the `Jobs` sheet with columns visible | `screenshots/08_excel_export.png` | ⬜ your device |
-| 8 | CSV Export | Spreadsheet or text editor | Job Explorer → **⬇️ Export CSV** → open `jobs_export.csv` → capture header + ~15 rows | `screenshots/07_csv_export.png` | ⬜ your device |
+| 7 | Excel Export | LibreOffice Calc / Excel | Job Explorer → **⬇️ Export Excel** → open the downloaded `jobs_export.xlsx` → capture the `Jobs` sheet with columns visible | `screenshots/08_excel_export.png` | ✅ done (grid render of the real file) |
+| 8 | CSV Export | Spreadsheet or text editor | Job Explorer → **⬇️ Export CSV** → open `jobs_export.csv` → capture header + ~15 rows | `screenshots/07_csv_export.png` | ✅ done (grid render of the real file) |
 | 9 | Docker Running | Terminal | in the project folder: `docker compose up` → wait for both services → capture terminal showing `scheduler` + `dashboard` logs (or `docker compose ps`) | `screenshots/09_docker_running.png` | ⬜ needs Docker |
-| 10 | GitHub Actions | Browser → `github.com/eagora26-hash/job-intelligence-monitor/actions` | capture the runs list showing green **Tests**, **Lint**, **Scheduled Scrape** (all green as of 2026-06-10) | `screenshots/10_github_actions.png` | ⬜ 1 minute |
+| 10 | GitHub Actions | Browser → `github.com/eagora26-hash/job-intelligence-monitor/actions` | capture the runs list showing green **Tests**, **Lint**, **Scheduled Scrape** (all green as of 2026-06-10) | `screenshots/10_github_actions.png` | ✅ done (all workflows green) |
 | 11 | System Status | Dashboard → **🖥️ System Status** | capture alerts + scrapes + DB stats | `screenshots/11_system_status.png` | ✅ done |
 | 12 | Streamlit Cloud Deployment | Browser → your `*.streamlit.app` URL | capture the deployed Overview page **with the cloud URL visible in the address bar** | `screenshots/13_streamlit_cloud.png` | ⬜ after deploy |
 | — | Portfolio Showcase *(bonus, done)* | Dashboard → **🏆 Portfolio Showcase** | architecture diagram visible | `screenshots/12_portfolio_showcase.png` | ✅ done |
-| — | Scheduler Running *(requested as #12 alt)* | Terminal | `python main.py --loop` → capture the startup log (`Scheduler starting; interval = …`) + one completed run line, then Ctrl+C showing graceful shutdown | `screenshots/14_scheduler_running.png` | ⬜ 2 minutes |
+| — | Scheduler Running *(requested as #12 alt)* | Terminal | `python main.py --loop` → capture the startup log (`Scheduler starting; interval = …`) + one completed run line, then Ctrl+C showing graceful shutdown | `screenshots/14_scheduler_running.png` | ✅ done (real 2-cycle run + graceful shutdown) |
 
 Tip: after capturing, drop the new files into `screenshots/` and they're automatically
 referenced by the README and guides.
