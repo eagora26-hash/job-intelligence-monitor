@@ -2,7 +2,7 @@
 
 > **Single source of truth for project state.** Any engineer (human or AI) can resume from:
 > `instructions.md` → `claude_start.md` → `IMPLEMENTATION_PLAN.md` → `TASKS.md` → this file.
-> Last updated: **2026-06-10** (Phases 0–H complete — v1.1, full gap-closure audit done).
+> Last updated: **2026-06-10** (Phases 0–I complete — v1.2: SaaS dashboard, monitoring-grade alerts, GitHub live, full client + portfolio packaging).
 
 ---
 
@@ -60,7 +60,7 @@ None implementable from this machine. Remaining items need the **user's accounts
 1. **Rotate the Telegram token** via @BotFather (original was exposed in the brief), update `.env` + GitHub secret.
 2. **Push to GitHub** → CI badges + scheduled scrape go live; then deploy per [DEPLOY_STREAMLIT.md](DEPLOY_STREAMLIT.md).
 3. **Capture screenshots 6–10** (Telegram client, export viewers, Docker, Actions) per [SCREENSHOT_CHECKLIST.md](SCREENSHOT_CHECKLIST.md).
-4. Optional: record the 2–3 min demo video ([PORTFOLIO_SHOWCASE.md](PORTFOLIO_SHOWCASE.md) has the script).
+4. Optional: record the 2–3 min demo video ([PORTFOLIO_SHOWCASE.md](PORTFOLIO_PACKAGE/PORTFOLIO_SHOWCASE.md) has the script).
 
 Future enhancements remain tracked in [ROADMAP.md](ROADMAP.md) and
 [PORTFOLIO_RECOMMENDATIONS.md](PORTFOLIO_RECOMMENDATIONS.md).
@@ -119,6 +119,14 @@ pytest-cov, ruff. Pinned in `requirements.txt`, `requirements-dashboard.txt`,
 ---
 
 ## Session Notes
+
+**Session 3 (2026-06-10, later):** Monitoring-grade Telegram semantics (baseline run + only-new
++ NOTIFY_SOURCES; validated 3 live cycles), SaaS dashboard redesign (7 pages, dark design
+system, heatmap/leaderboards/showcase/system pages; AppTest 7×0 errors), GitHub push +
+merge with the bot's data commits (CI green: Lint/Tests/Scheduled Scrape), and the full
+delivery+portfolio packaging: client docs (installation/user/admin/handoff/checklists),
+PORTFOLIO_PACKAGE/ (9 files), demo assets, PROJECT_COMPLETENESS_AUDIT (7 Complete,
+2 Partial, 0 Missing). 65 tests, 67% coverage, 249 jobs in DB.
 
 **Session 2 (2026-06-10):** Full completion & gap-closure audit per the final directive.
 Validated every subsystem live and produced the evidence trail (8 reports: requirements gap

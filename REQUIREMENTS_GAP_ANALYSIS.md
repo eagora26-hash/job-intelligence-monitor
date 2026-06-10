@@ -102,7 +102,7 @@ Statuses: **FULLY** · **PARTIALLY** · **NOT** implemented.
 | Architecture + DB diagrams (Mermaid) | **FULLY** | README + `docs/ARCHITECTURE.md` |
 | Roadmap + changelog | **FULLY** | `ROADMAP.md`, `CHANGELOG.md` |
 | Screenshots folder + README references | **FULLY** *(upgraded this audit)* | 5 **real** dashboard captures now in `screenshots/`; 5 remaining need user accounts/devices — [SCREENSHOT_CHECKLIST.md](SCREENSHOT_CHECKLIST.md) |
-| Demo video documentation | **FULLY** | `docs/DEMO_VIDEO.md` + script in [PORTFOLIO_SHOWCASE.md](PORTFOLIO_SHOWCASE.md) |
+| Demo video documentation | **FULLY** | `docs/DEMO_VIDEO.md` + script in [PORTFOLIO_SHOWCASE.md](PORTFOLIO_PACKAGE/PORTFOLIO_SHOWCASE.md) |
 | Planning docs (IMPLEMENTATION_PLAN/TASKS/PORTFOLIO_RECOMMENDATIONS/HANDOVER) | **FULLY** | all present and current |
 
 ## 8. Remaining gaps (none blocking)
