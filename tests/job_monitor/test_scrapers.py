@@ -50,6 +50,18 @@ def test_freelancer_api_parsing():
     assert "Python" in jobs[0]["tags"]
 
 
+def test_fiverr_perseus_listing_parsing():
+    jobs = FiverrScraper.parse_html(_read("fiverr_perseus.html"))
+    assert len(jobs) == 2  # gig with empty title is skipped
+    first = jobs[0]
+    assert first["title"] == "Build a python web scraping bot for any website"
+    assert first["company"] == "ScrapeMaster Co"
+    assert first["url"] == "https://www.fiverr.com/scrapemaster/build-a-python-web-scraping-bot"
+    assert first["salary"] == "USD 120 (starting)"
+    assert "pro" in first["tags"]
+    assert jobs[1]["company"] == "autodev"  # falls back to seller_name
+
+
 def test_fiverr_ldjson_itemlist_parsing():
     jobs = FiverrScraper.parse_html(_read("fiverr_listing.html"))
     assert len(jobs) == 2

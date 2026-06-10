@@ -1,7 +1,6 @@
 # Streamlit configuration (applies locally and on Streamlit Community Cloud).
 [server]
 headless = true
-enableCORS = false
 
 [theme]
 base = "light"

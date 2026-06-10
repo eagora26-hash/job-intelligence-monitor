@@ -1,4 +1,4 @@
-"""Job Explorer page: full-text search, faceted filters, and CSV/Excel export."""
+"""Job Explorer page: full-text search, faceted filters, and CSV/Excel/JSON export."""
 
 from __future__ import annotations
 
@@ -60,7 +60,7 @@ def render(ctx: DashboardContext) -> None:
         column_config={"url": st.column_config.LinkColumn("Link", display_text="open")},
     )
 
-    d1, d2, _ = st.columns([1, 1, 4])
+    d1, d2, d3, _ = st.columns([1, 1, 1, 3])
     d1.download_button(
         "⬇️ Export CSV", data=exporter.to_csv_bytes(),
         file_name="jobs_export.csv", mime="text/csv", width="stretch",
@@ -70,5 +70,10 @@ def render(ctx: DashboardContext) -> None:
         "⬇️ Export Excel", data=exporter.to_excel_bytes(),
         file_name="jobs_export.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        width="stretch", disabled=not results,
+    )
+    d3.download_button(
+        "⬇️ Export JSON", data=exporter.to_json_bytes(),
+        file_name="jobs_export.json", mime="application/json",
         width="stretch", disabled=not results,
     )

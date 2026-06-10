@@ -89,7 +89,7 @@ def test_mcp_registry_register_and_manifest(tmp_path):
 
 # ----------------------------------------------------------------- API
 def test_rest_api_endpoints(tmp_path):
-    fastapi = pytest.importorskip("fastapi")
+    pytest.importorskip("fastapi")
     from fastapi.testclient import TestClient
 
     from job_monitor.api.app import create_app

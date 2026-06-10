@@ -1,11 +1,11 @@
 """Fiverr scraper — public listing pages only (best-effort).
 
-Fiverr exposes no public jobs/buyer-requests API and aggressively blocks automated traffic,
-so this scraper is intentionally *best-effort and honest*: it parses the ``ld+json``
-``ItemList`` that public category pages embed, and returns an empty list (rather than
-fabricating data) when the page is unavailable or blocked. The demo-data generator covers
-the dashboard when this source yields nothing. An optional Scrapling stealth fallback can be
-enabled via ``USE_STEALTH_FALLBACK`` for environments with a browser stack.
+Fiverr exposes no public jobs/buyer-requests API, so this scraper parses the JSON data
+island (``<script id="perseus-initial-props">``) that public subcategory/search pages embed
+server-side — each page carries ~48 gigs under ``listings[].gigs``. The legacy ``ld+json``
+``ItemList`` parse is kept as a fallback for pages that still emit it. The scraper stays
+*honest*: it returns an empty list (never fabricated data) when pages are blocked or the
+embedded data is absent. The demo-data generator covers the dashboard in that case.
 """
 
 from __future__ import annotations
@@ -17,10 +17,12 @@ from scrapling import Selector
 
 from job_monitor.scrapers.base import BaseScraper, RawJob
 
-# Public category pages that embed ld+json structured data.
+# Public gig-bearing pages (subcategory + search) aligned with the monitored niche.
+# NOTE: category *hub* pages (e.g. /categories/programming-tech/data-processing) embed no
+# gigs — only subcategory and /search/gigs pages carry the listings payload.
 LISTING_URLS = [
-    "https://www.fiverr.com/categories/programming-tech/data-processing",
-    "https://www.fiverr.com/categories/programming-tech/web-programming",
+    "https://www.fiverr.com/categories/programming-tech/web-programming-services/web-scraping",
+    "https://www.fiverr.com/search/gigs?query=python%20automation",
 ]
 
 
@@ -47,12 +49,37 @@ class FiverrScraper(BaseScraper):
             self.logger.info("No public Fiverr listings parsed (expected when blocked).")
         return jobs
 
-    @staticmethod
-    def parse_html(html: str) -> List[RawJob]:
-        """Extract gigs from any ld+json ``ItemList`` embedded in the page."""
+    @classmethod
+    def parse_html(cls, html: str) -> List[RawJob]:
+        """Extract gigs from the perseus data island, falling back to ld+json ItemList."""
         if not html:
             return []
         selector = Selector(content=html)
+        jobs = cls._parse_perseus(selector)
+        return jobs if jobs else cls._parse_ld_json(selector)
+
+    # ------------------------------------------------------------- perseus data island
+    @staticmethod
+    def _parse_perseus(selector: Selector) -> List[RawJob]:
+        """Parse gigs from ``<script id="perseus-initial-props">`` (current page format)."""
+        jobs: List[RawJob] = []
+        for script in selector.css("script#perseus-initial-props"):
+            payload = _safe_json(str(script.text))
+            if not isinstance(payload, dict):
+                continue
+            for listing in payload.get("listings") or []:
+                if not isinstance(listing, dict):
+                    continue
+                for gig in listing.get("gigs") or []:
+                    job = _gig_to_raw(gig)
+                    if job:
+                        jobs.append(job)
+        return jobs
+
+    # ------------------------------------------------------------- legacy ld+json
+    @staticmethod
+    def _parse_ld_json(selector: Selector) -> List[RawJob]:
+        """Extract gigs from any ld+json ``ItemList`` embedded in the page (legacy)."""
         jobs: List[RawJob] = []
         for script in selector.css('script[type="application/ld+json"]'):
             payload = _safe_json(str(script.text))
@@ -75,6 +102,34 @@ class FiverrScraper(BaseScraper):
                     )
                 )
         return jobs
+
+
+def _gig_to_raw(gig: Any) -> RawJob | None:
+    """Map one perseus gig dict to the raw-job contract (or ``None`` if unusable)."""
+    if not isinstance(gig, dict):
+        return None
+    title = (gig.get("title") or "").strip()
+    path = gig.get("gig_url") or ""
+    if not title or not path:
+        return None
+    seller = gig.get("seller_display_name") or gig.get("seller_name") or "Fiverr Seller"
+    price = gig.get("price_i")
+    salary = f"USD {price} (starting)" if price else ""
+    tags = ["fiverr", "gig"]
+    if gig.get("is_pro"):
+        tags.append("pro")
+    return RawJob(
+        source="fiverr",
+        # Gig titles are stored lowercase ("develop ai web application …") — capitalize.
+        title=title[0].upper() + title[1:],
+        company=str(seller),
+        url=f"https://www.fiverr.com{path}" if path.startswith("/") else path,
+        description=title,
+        posted_at="",
+        location="Remote",
+        tags=tags,
+        salary=salary,
+    )
 
 
 def _safe_json(text: str) -> Any:

@@ -60,9 +60,11 @@ def test_exporter_csv_excel_json(demo_db, tmp_path):
 
     csv_path = exporter.to_csv(tmp_path / "out.csv")
     xlsx_path = exporter.to_excel(tmp_path / "out.xlsx")
-    assert csv_path.exists() and xlsx_path.exists()
+    json_path = exporter.to_json(tmp_path / "out.json")
+    assert csv_path.exists() and xlsx_path.exists() and json_path.exists()
     assert len(exporter.to_csv_bytes()) > 0
     assert exporter.to_excel_bytes()[:2] == b"PK"  # xlsx is a zip
+    assert exporter.to_json_bytes().lstrip()[:1] == b"["  # JSON array of records
 
 
 def test_exporter_handles_empty():

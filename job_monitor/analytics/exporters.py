@@ -81,3 +81,6 @@ class JobExporter:
         with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
             self.to_dataframe().to_excel(writer, index=False, sheet_name="Jobs")
         return buffer.getvalue()
+
+    def to_json_bytes(self) -> bytes:
+        return self.to_dataframe().to_json(orient="records", indent=2).encode("utf-8")
